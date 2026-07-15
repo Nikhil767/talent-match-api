@@ -17,7 +17,7 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
+#if !DEBUG
 // Read the PORT environment variable provided by Render, defaulting to 8080
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -41,7 +41,16 @@ maxRequestBodySize = maxRequestBodySize == 0 ? 5 : maxRequestBodySize;
 
 // 1. Hook up Npgsql EF Core Engine Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
-	options.UseNpgsql(connectionString));
+options.UseNpgsql(connectionString, npgsqlOptions =>
+{
+	// 1. Give the DB up to 2 minutes to respond during startup/migrations
+	npgsqlOptions.CommandTimeout(120);
+	// 2. Enable automatic retries for transient failures (like sleeping pools)
+	npgsqlOptions.EnableRetryOnFailure(
+		maxRetryCount: 5,
+		maxRetryDelay: TimeSpan.FromSeconds(30),
+		errorCodesToAdd: null);
+}));
 
 // Add generic injections if needed fallback strategy
 //builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
