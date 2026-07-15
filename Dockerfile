@@ -38,7 +38,7 @@ RUN dotnet publish "ResumeAnalyzer/ResumeAnalyzer.csproj" \
 # Stage 3: Runtime Stage (Final Image)
 # Uses the secure, highly-compatible debian-slim runtime
 # ===================================
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 
 # Run as non-root user for security
