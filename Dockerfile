@@ -8,7 +8,7 @@ WORKDIR /src
 # Copy project files first for better cache usage
 COPY ["ResumeAnalyzer.slnx", "./"]
 COPY ["ResumeAnalyzer/ResumeAnalyzer.csproj", "ResumeAnalyzer/"]
-COPY ["ResumeAnalyzer.Tests/ResumeAnalyzer.Tests.csproj", "ResumeAnalyzer.Tests/"]
+COPY ["ResumeAnalyzer.Test/ResumeAnalyzer.Test.csproj", "ResumeAnalyzer.Test/"]
 
 # Restore both projects
 RUN dotnet restore "ResumeAnalyzer.slnx"
