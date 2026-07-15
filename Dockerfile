@@ -21,8 +21,8 @@ COPY . .
 
 # Run unit tests
 # If tests fail, Docker build will stop here
-RUN dotnet build "ResumeAnalyzer.Tests/ResumeAnalyzer.Tests.csproj" -c Release --no-restore
-RUN dotnet test "ResumeAnalyzer.Tests/ResumeAnalyzer.Tests.csproj" -c Release --no-build
+RUN dotnet build "ResumeAnalyzer.Test/ResumeAnalyzer.Test.csproj" -c Release --no-restore
+RUN dotnet test "ResumeAnalyzer.Test/ResumeAnalyzer.Test.csproj" -c Release --no-build
 
 # ===================================
 # Stage 2: Publish Stage
