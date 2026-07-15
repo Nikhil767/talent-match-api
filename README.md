@@ -4,6 +4,8 @@
 
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)
+![Supabase Storage](https://img.shields.io/badge/Supabase-Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+[![Supabase Auth](https://img.shields.io/badge/Supabase-Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/auth)
 ![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-DC244C?style=for-the-badge&logo=qdrant)
 ![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker)
 ![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render)
@@ -153,14 +155,14 @@ Multi-stage build keeps the runtime image lean and production-ready.
 
 ```dockerfile
 # ---- Build Stage ----
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 COPY . .
 RUN dotnet restore "TalentMatch.Api.csproj"
 RUN dotnet publish "TalentMatch.Api.csproj" -c Release -o /app/publish
 
 # ---- Runtime Stage ----
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-slim AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 EXPOSE 8080
