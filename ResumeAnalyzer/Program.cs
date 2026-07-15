@@ -17,6 +17,12 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#if DEBUG
+// Read the PORT environment variable provided by Render, defaulting to 8080
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+#endif
+
 // 1 Configurations
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var url = builder.Configuration["Supabase:Url"];
