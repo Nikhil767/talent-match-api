@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ResumeAnalyzer.Test/ResumeAnalyzer.Test.csproj" Id="f247d0f1-7bf2-4c9a-bbf3-0896847630ef" />
+  <Project Path="ResumeAnalyzer/ResumeAnalyzer.csproj" />
+</Solution>

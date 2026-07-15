@@ -1,0 +1,6 @@
+@ResumeAnalyzer_HostAddress = http://localhost:5109
+
+GET {{ResumeAnalyzer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
