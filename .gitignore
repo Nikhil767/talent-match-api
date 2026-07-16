@@ -26,6 +26,7 @@ wwwroot/lib/
 appsettings.Development.json
 appsettings.Local.json
 appsettings.*.local.json
+*.env
 
 ## Logs
 *.log
