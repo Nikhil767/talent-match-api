@@ -32,43 +32,43 @@
                                      │ POST /api/resumes/upload
                                      ▼
                      ┌───────────────────────────────┐
-                     │   ASP.NET Core Web API (.NET 10) │
-                     │      Controller → Service        │
+                     │ ASP.NET Core Web API (.NET 10)│
+                     │      Controller → Service     │
                      └───────────────┬───────────────┘
                                      │
               ┌──────────────────────┼──────────────────────┐
               ▼                      ▼                      ▼
-   ┌────────────────────┐  ┌──────────────────┐  ┌────────────────────┐
-   │  Supabase Storage   │  │  Document Parser  │  │  Supabase Postgres │
-   │  (raw PDF/DOCX/TXT) │  │ (text extraction) │  │ (metadata/identity)│
-   └────────────────────┘  └─────────┬──────────┘  └────────────────────┘
+   ┌────────────────────┐  ┌────────────────────┐ ┌────────────────────┐
+   │  Supabase Storage  │  │  Document Parser   │ │  Supabase Postgres │
+   │  (raw PDF/DOCX/TXT)│  │ (text extraction)  │ │ (metadata/identity)│
+   └────────────────────┘  └──────────┬─────────┘ └────────────────────┘
                                       │
                                       ▼
                      ┌─────────────────────────────────┐
-                     │  Embedding Service                │
-                     │  (Hugging Face API / local model) │
-                     │  → 768-dim vector                 │
-                     └─────────────┬───────────────────┘
+                     │  Embedding Service              │
+                     │ (Hugging Face API / local model)│
+                     │  → 768-dim vector               │
+                     └──────────────┬──────────────────┘
                                     ▼
                      ┌─────────────────────────────────┐
-                     │        Qdrant Vector DB           │
-                     │  Stores & indexes resume vectors  │
-                     └─────────────┬───────────────────┘
+                     │        Qdrant Vector DB         │
+                     │  Stores & indexes resume vectors│
+                     └──────────────┬──────────────────┘
                                     │ semantic similarity query
                                     ▼
                      ┌─────────────────────────────────┐
-                     │  Matching Engine                  │
-                     │  Cosine similarity ranking         │
-                     └─────────────┬───────────────────┘
+                     │  Matching Engine                │
+                     │  Cosine similarity ranking      │
+                     └──────────────┬──────────────────┘
                                     ▼
                      ┌─────────────────────────────────┐
-                     │   LLM Layer (Groq / Gemini)       │
-                     │  → Matchmaking summary, gap        │
-                     │    analysis, fit score              │
-                     └─────────────┬───────────────────┘
+                     │   LLM Layer (Groq / Gemini)     │
+                     │  → Matchmaking summary, gap     │
+                     │    analysis, fit score          │
+                     └──────────────┬──────────────────┘
                                     ▼
                          ┌───────────────────────┐
-                         │  JSON Response to User │
+                         │  JSON Response to User│
                          └───────────────────────┘
 ```
 
@@ -90,9 +90,15 @@ Never commit secrets to `appsettings.json`. Use .NET User-Secrets instead:
 cd TalentMatch.Api
 dotnet user-secrets init
 
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "your-db-connection-string"
 dotnet user-secrets set "Supabase:Url" "https://xxxx.supabase.co"
 dotnet user-secrets set "Supabase:ApiKey" "your-supabase-service-role-key"
 dotnet user-secrets set "Supabase:BucketName" "resumes"
+
+dotnet user-secrets set "Supabase:ProjectId" "your-project-id"
+dotnet user-secrets set "Supabase:AnonKey" "your-annon-key"
+dotnet user-secrets set "Supabase:service_role" "your-supabase-service-role-key"
+dotnet user-secrets set "Supabase:JwtSecret" "your-annon-key"
 
 dotnet user-secrets set "Qdrant:Host" "your-qdrant-host"
 dotnet user-secrets set "Qdrant:ApiKey" "your-qdrant-api-key"
@@ -107,43 +113,63 @@ dotnet user-secrets set "JSearch:ApiKey" "your-jsearch-key"
 ### 3. `appsettings.json` Structure Reference
 
 ```json
-{
-  "Supabase": {
-    "Url": "",
-    "ApiKey": "",
-    "BucketName": "resumes"
-  },
-  "Qdrant": {
-    "Host": "",
-    "Port": 6334,
-    "ApiKey": "",
-    "CollectionName": "resume_embeddings",
-    "VectorSize": 768
-  },
-  "AI": {
-    "Gemini": {
-      "ApiKey": "",
-      "Model": "gemini-1.5-flash"
-    },
-    "Groq": {
-      "ApiKey": "",
-      "Model": "llama-3.1-70b-versatile"
-    },
-    "OpenAI": {
-      "ApiKey": "",
-      "Model": "gpt-4o-mini"
-    }
-  },
-  "HuggingFace": {
-    "ApiKey": "",
-    "EmbeddingModel": "sentence-transformers/all-mpnet-base-v2"
-  },
-  "JSearch": {
-    "ApiKey": "",
-    "BaseUrl": "https://jsearch.p.rapidapi.com"
-  },
-  "AllowedFileTypes": [ ".pdf", ".docx", ".doc", ".txt" ],
-  "MaxFileSizeMb": 10
+"ConnectionStrings": {
+  "DefaultConnection": "your-db-connection-string"
+},
+"Files": {
+  "AllowedExtensions": [ ".pdf", ".docx", ".doc", ".txt" ],
+  "AllowedMimeTypes": [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "text/plain"
+  ],
+  "MinSizeKb": 1,
+  "MaxSizeMb": 1,
+  "MaxFileNameLength": 100
+},
+"JobDescription": {
+  "MinLength": 100,
+  "MaxLength": 5000
+},
+"Supabase": {
+  "ProjectId": "your-project-id",
+  "JwtSecret": "your-jwt-secret",
+  "Url": "https://xxxx.supabase.co",
+  "AnonKey": "your-annon-key",
+  "service_role": "your-service-role",
+  "StorageBucket": "resumes"
+},
+"HuggingFace": {
+  "Url": "https://router.huggingface.co/hf-inference/",
+  "ApiKey": "your-hf-key"
+},
+"Groq": {
+  "Url": "https://api.groq.com/openai/v1/",
+  "ApiKey": "your-groq-key"
+},
+"Gemini": {
+  "Url": "https://generativelanguage.googleapis.com/v1beta/",
+  "ApiKey": "your-gemini-key"
+},
+"OpenAI": {
+  "Url": "https://api.openai.com/v1/",
+  "ApiKey": "your-openai-key"
+},
+"Qdrant": {
+  "Host": "your-qdrant-host",
+  "ApiKey": "your-qdrant-api-key",
+  "Port": 0,
+  "VectorSize": 768,
+  "QdrantCollections": {
+    "Resumes": "resumes",
+    "Jobs": "jobs"
+  }
+},
+"JSearch": {
+  "Url": "https://jsearch.p.rapidapi.com/",
+  "ApiKey": "your-jsearch-key",
+  "Host": "jsearch.p.rapidapi.com"
 }
 ```
 
@@ -197,7 +223,9 @@ docker run -p 8080:8080 --env-file .env talent-match-api
 | `POST` | `/api/jobs/match` | Matches job description with Existing  jobs with its own embedding |
 | `GET`  | `/api/jobs/{id}` | Get job details by JobId |
 | `GET`  | `/api/notifications/{userId}` | Get sse events for the resume upload process |
-| `POST`  | `/api/notifications/cancel/{userId}` | Disconnect the sse connection manually if required |
+| `DELETE`| `/api/notifications/cancel/{userId}` | Disconnect the sse connection manually if required |
+| `GET`  | `/api/admin/sse/connections` | Get All sse connection list |
+| `DELETE` | `/api/admin/sse/connections/{userId}` | Disconnect the sse connection manually if required |
 
 ---
 
