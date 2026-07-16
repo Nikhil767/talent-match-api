@@ -1,13 +1,7 @@
-using Qdrant.Client.Grpc;
 using ResumeAnalyzer.Domain.Constants;
 using ResumeAnalyzer.Domain.Dto;
 using ResumeAnalyzer.Domain.Repositories;
 using ResumeAnalyzer.Middleware;
-using ResumeAnalyzer.Services;
-using ResumeAnalyzer.Services.Helper;
-using ResumeAnalyzer.Services.Strategy;
-using System.Text.Json;
-using Filter = Qdrant.Client.Grpc.Filter;
 
 namespace ResumeAnalyzer.Endpoints
 {

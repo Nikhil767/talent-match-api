@@ -65,7 +65,7 @@ namespace ResumeAnalyzer.Endpoints
 					var db = redis.GetDatabase();
 					// Save to Upstash with the exact expiration remaining
 					await db.StringSetAsync(
-						key: $"blacklist:{userId}:{sessionId}",
+						key: $"bl:{userId}:{sessionId}",
 						value: "revoked",
 						expiry: remainingTime
 					);

@@ -35,7 +35,7 @@ namespace ResumeAnalyzer.Middleware
 			var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(sessionId))
 			{
-				bool isBlacklisted = await _redisDb.KeyExistsAsync($"blacklist:{userId}:{sessionId}");
+				bool isBlacklisted = await _redisDb.KeyExistsAsync($"bl:{userId}:{sessionId}");
 				if (isBlacklisted)
 				{
 					context.Response.StatusCode = StatusCodes.Status401Unauthorized;

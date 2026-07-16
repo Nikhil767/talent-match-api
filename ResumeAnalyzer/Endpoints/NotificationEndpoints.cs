@@ -10,7 +10,6 @@ namespace ResumeAnalyzer.Endpoints
 			// 1. GET active connections list
 			adminGroup.MapGet("/sse/connections", (ISseBroker broker) =>
 			{
-				// Returns a list of all Guids currently holding open channels
 				return Results.Ok(broker.GetActiveUserIds());
 			});
 
