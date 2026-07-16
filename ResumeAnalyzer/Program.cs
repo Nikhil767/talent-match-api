@@ -192,12 +192,6 @@ builder.Services.AddHttpClient("job-search", client =>
 	client.DefaultRequestHeaders.Add("X-RapidAPI-Host", builder.Configuration["JSearch:Host"]!);
 });
 
-//builder.Services.AddHttpClient("openai", client =>
-//{
-//	client.BaseAddress = new Uri(builder.Configuration["OpenAI:Url"]!);
-//})
-//.AddPolicyHandler((sp, req) => sp.GetRequiredService<PollyPolicies>().RetryPolicy);
-
 // Providers
 builder.Services.AddSingleton<EmbeddingService>();
 builder.Services.AddSingleton<GroqService>();
@@ -219,7 +213,6 @@ builder.Services.AddSingleton<IVectorService, VectorService>();
 builder.Services.AddSingleton<JobIngestionService>();
 builder.Services.AddHttpClient<SupabaseService>();
 builder.Services.AddSingleton<ISseBroker, SseBroker>();
-//builder.Services.AddScoped<CloudflareR2Service>();
 
 // ---------------------------------------------------------
 // 3. Build App

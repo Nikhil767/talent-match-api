@@ -172,7 +172,18 @@ dotnet user-secrets set "JSearch:ApiKey" "your-jsearch-key"
   "Host": "jsearch.p.rapidapi.com"
 }
 ```
+---
+### 4. Script Reference
+Before starting the API, run the PostgreSQL schema script to initialize the required tables and database structure.
 
+You can find the script here:
+[First_Schema.sql](https://github.com/Nikhil767/talent-match-api/blob/main/First_Schema.sql)
+
+#### Running the script
+
+Use `psql` to execute it:
+```bash
+psql -U <username> -d <database> -f First_Schema.sql
 ---
 
 ## 🐳 Docker Deployment
@@ -219,8 +230,9 @@ docker run -p 8080:8080 --env-file .env talent-match-api
 | `POST` | `/api/analysis/ats` | Run semantic match between a resume and a job description, returns fit score + LLM summary |
 | `POST` | `/api/analysis/gaps` | Run semantic match between a resume and a job description, returns Missing gaps |
 | `POST` | `/api/analysis/tailor` | Run semantic match between a resume and a job description, returns resume bullets to a specific job description |
-| `GET`  | `/api/jobs/search` | Search live external job postings via JSearch API |
-| `POST` | `/api/jobs/match` | Matches job description with Existing  jobs with its own embedding |
+| `POST` | `/api/jobs/ingest` | ingests (jobs from JSearch API & imports) a job-related payload into the system. |
+| `GET`  | `/api/jobs/search` | Search jobs from DB |
+| `POST` | `/api/jobs/match` | Matches job description with Existing jobs with its own embedding |
 | `GET`  | `/api/jobs/{id}` | Get job details by JobId |
 | `GET`  | `/api/notifications/{userId}` | Get sse events for the resume upload process |
 | `DELETE`| `/api/notifications/cancel/{userId}` | Disconnect the sse connection manually if required |
