@@ -8,8 +8,8 @@ using ResumeAnalyzer.Services.Strategy;
 namespace ResumeAnalyzer.Services.Facade
 {
 	public class ResumePipelineService(
-		VectorService vectorService,
-		SupabaseStorageRestService supabaseStorageService,
+		IVectorService vectorService,
+		ISupabaseStorageRestService supabaseStorageService,
 		IResumeRepository resumeRepository,
 		IResumeAnalysisRepository analysisRepository,
 		IEmbeddingStrategy embedding,

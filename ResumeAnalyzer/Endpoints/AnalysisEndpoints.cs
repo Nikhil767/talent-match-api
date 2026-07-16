@@ -15,9 +15,7 @@ namespace ResumeAnalyzer.Endpoints
 			var group = app.MapGroup("/api/analysis").WithTags("Analysis").RequireAuthorization();
 
 			// POST /analysis/ats
-			group.MapPost("/ats", async (AtsRequestDto req, HttpContext ctx, VectorService vectorService,
-			IConfiguration config, IResumeAnalysisRepository resumeAnalysisRepository, IAnalysisStrategy analysis,
-			IEmbeddingStrategy embedding) =>
+			group.MapPost("/ats", async (AtsRequestDto req, HttpContext ctx, IConfiguration config, ResumeAnalyzer.Services.Facade.IAnalysisPipelineService pipeline) =>
 			{
 				if (req.ResumeId == Guid.Empty)
 					return Results.BadRequest("Invalid id");
@@ -33,56 +31,15 @@ namespace ResumeAnalyzer.Endpoints
 				if (string.IsNullOrWhiteSpace(jobDescription))
 					return Results.BadRequest("Invalid JobDescription");
 				var userId = ctx.User.GetGuidUserId();
-				var resumeAnalysis = await resumeAnalysisRepository.FirstOrDefaultAsync(x => x.ResumeId == req.ResumeId);
-				if (resumeAnalysis is null) return Results.NotFound();
-
-				// 1. Generate an embedding for the target Job Description
-				var jobEmbedding = await embedding.GetEmbeddingAsync(jobDescription);
-				// 2. Filter Qdrant search strictly to chunks belonging to this specific resume
-				var filter = new Filter
-				{
-					Must = {
-						new Condition {
-							Field = new FieldCondition {
-								Key = "resume_id",
-								Match = new Match { Keyword = req.ResumeId.ToString() }
-							}
-						}
-					}
-				};
-				// 3. Search for the top 5 most relevant chunks to the job description
-				var searchResults = await vectorService.SearchAsync(
-					config["Qdrant:QdrantCollections:Resumes"]!,
-					jobEmbedding,
-					topK: 5,
-					filter: filter);
-				// 4. Extract the raw text from the payload
-				var relevantChunks = searchResults.Select(r => r.Payload["chunk_text"].StringValue).ToList();
-				// 5. Combine the relevant chunks to form the context for the LLM
-				var contextText = string.Join("\n\n... ", relevantChunks);
-				// Fallback: If Qdrant returns nothing (e.g. index empty), fallback to the extracted summary
-				if (string.IsNullOrWhiteSpace(contextText))
-					contextText = resumeAnalysis.ExtractedSummary;
-				var result = await analysis.GetAtsScoreAsync(contextText!, jobDescription);
-				//if (!string.IsNullOrWhiteSpace(result))
-				//{
-				//	resumeAnalysis.AtsAnalysisJson = result;
-				//	using var doc = System.Text.Json.JsonDocument.Parse(result);
-				//	decimal finalAts = 0;
-				//	if (doc.RootElement.TryGetProperty("ats_score", out var scoreProp) && scoreProp.TryGetDecimal(out var parsedAts))
-				//		finalAts = Math.Clamp(parsedAts, 0, 100);
-				//	resumeAnalysis.AtsScore = finalAts > 0 && resumeAnalysis.AtsScore != finalAts ? finalAts : resumeAnalysis.AtsScore;
-				//	await resumeAnalysisRepository.AddAsync(resumeAnalysis);
-				//	var isSaved = await resumeAnalysisRepository.SaveChangesAsync();
-				//}
-				return Results.Ok(System.Text.Json.JsonSerializer.Deserialize<object>(result));
+				var result = await pipeline.AnalyzeAtsAsync(req, userId);
+				if (result is null) return Results.NotFound();
+				
+				return Results.Ok(result);
 			})
 			.WithSummary("ATS score + keyword analysis for a resume");
 
 			// POST /analysis/gaps
-			group.MapPost("/gaps", async (GapRequestDto req, HttpContext ctx, VectorService vectorService,
-			IConfiguration config, IResumeRepository resumeRepository, IAnalysisStrategy analysis, 
-			IEmbeddingStrategy embedding) =>
+			group.MapPost("/gaps", async (GapRequestDto req, HttpContext ctx, IConfiguration config, ResumeAnalyzer.Services.Facade.IAnalysisPipelineService pipeline) =>
 			{
 				if (req.ResumeId == Guid.Empty)
 					return Results.BadRequest("Invalid id");
@@ -98,47 +55,15 @@ namespace ResumeAnalyzer.Endpoints
 				if (string.IsNullOrWhiteSpace(jobDescription))
 					return Results.BadRequest("Invalid JobDescription");
 				var userId = ctx.User.GetGuidUserId();
-				var resume = await resumeRepository.GetResumeAnalysisAsync(x => x.Id == req.ResumeId && x.UserId == userId);
-				if (resume is null) return Results.NotFound();
+				var result = await pipeline.AnalyzeGapsAsync(req, userId);
+				if (result is null) return Results.NotFound();
 				
-				// 1. Generate an embedding for the target Job Description
-				var jobEmbedding = await embedding.GetEmbeddingAsync(jobDescription);
-				// 2. Filter Qdrant search strictly to chunks belonging to this specific resume
-				var filter = new Filter
-				{
-					Must = {
-						new Condition {
-							Field = new FieldCondition {
-								Key = "resume_id",
-								Match = new Match { Keyword = req.ResumeId.ToString() }
-							}
-						}
-					}
-				};
-				// 3. Search for the top 5 most relevant chunks to the job description
-				var searchResults = await vectorService.SearchAsync(
-					config["Qdrant:QdrantCollections:Resumes"]!,
-					jobEmbedding,
-					topK: 5,
-					filter: filter);
-				// 4. Extract the raw text from the payload
-				var relevantChunks = searchResults.Select(r => r.Payload["chunk_text"].StringValue).ToList();
-
-				// 5. Combine the relevant chunks to form the context for the LLM
-				var contextText = string.Join("\n\n... ", relevantChunks);
-				// Fallback: If Qdrant returns nothing (e.g. index empty), fallback to the extracted summary
-				if (string.IsNullOrWhiteSpace(contextText))
-					contextText = resume.ExtractedSummary;
-				// 6. Pass the highly targeted context text to the LLM
-				var result = await analysis.GetGapAnalysisAsync(contextText!, jobDescription);
-				return Results.Ok(System.Text.Json.JsonSerializer.Deserialize<object>(result));
+				return Results.Ok(result);
 			})
 			.WithSummary("Skill gap analysis between resume and job description");
 
 			// POST /analysis/tailor
-			group.MapPost("/tailor", async (TailorRequestDto req, HttpContext ctx, IResumeRepository resumeRepository, 
-			ITailorStrategy tailor, VectorService vectorService, IConfiguration config, IAnalysisStrategy analysis,
-			IEmbeddingStrategy embedding) =>
+			group.MapPost("/tailor", async (TailorRequestDto req, HttpContext ctx, IConfiguration config, ResumeAnalyzer.Services.Facade.IAnalysisPipelineService pipeline) =>
 			{
 				if (req.ResumeId == Guid.Empty)
 					return Results.BadRequest("Invalid id");
@@ -154,39 +79,10 @@ namespace ResumeAnalyzer.Endpoints
 				if (string.IsNullOrWhiteSpace(jobDescription))
 					return Results.BadRequest("Invalid JobDescription");
 				var userId = ctx.User.GetGuidUserId();
-				var resume = await resumeRepository.GetResumeAnalysisAsync(x => x.Id == req.ResumeId && x.UserId == userId);
-				if (resume is null) return Results.NotFound();
-
-				// 1. Generate an embedding for the target Job Description
-				var jobEmbedding = await embedding.GetEmbeddingAsync(jobDescription);
-				// 2. Filter Qdrant search strictly to chunks belonging to this specific resume
-				var filter = new Filter
-				{
-					Must = {
-						new Condition {
-							Field = new FieldCondition {
-								Key = "resume_id",
-								Match = new Match { Keyword = req.ResumeId.ToString() }
-							}
-						}
-					}
-				};
-				// 3. Search for the top 5 most relevant chunks to the job description
-				var searchResults = await vectorService.SearchAsync(
-					config["Qdrant:QdrantCollections:Resumes"]!,
-					jobEmbedding,
-					topK: 5,
-					filter: filter);
-				// 4. Extract the raw text from the payload
-				var relevantChunks = searchResults.Select(r => r.Payload["chunk_text"].StringValue).ToList();
-				// 5. Combine the relevant chunks to form the context for the LLM
-				var contextText = string.Join("\n\n... ", relevantChunks);
-				// Fallback: If Qdrant returns nothing (e.g. index empty), fallback to the extracted summary
-				if (string.IsNullOrWhiteSpace(contextText))
-					contextText = resume.ExtractedSummary;
-				// 6. Pass the highly targeted context text to the LLM
-				var result = await tailor.TailorResumeAsync(contextText!, jobDescription);
-				return Results.Ok(System.Text.Json.JsonSerializer.Deserialize<object>(result));
+				var result = await pipeline.TailorResumeAsync(req, userId);
+				if (result is null) return Results.NotFound();
+				
+				return Results.Ok(result);
 			})
 			.WithSummary("Tailor resume bullets to a specific job description");			
 		}

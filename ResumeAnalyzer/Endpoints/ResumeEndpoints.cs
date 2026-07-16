@@ -20,7 +20,7 @@ namespace ResumeAnalyzer.Endpoints
 			HttpContext ctx,
 			IResumeRepository resumeRepository,
 			AnalysisQueue analysisQueue,
-			SupabaseStorageRestService supabaseStorageRestService,
+			ISupabaseStorageRestService supabaseStorageRestService,
 			IConfiguration config,
 			CancellationToken ct) =>
 			{
@@ -124,8 +124,8 @@ namespace ResumeAnalyzer.Endpoints
 				HttpContext ctx,
 				IResumeRepository resumeRepository,
 				IConfiguration config,
-				VectorService vector,
-				SupabaseStorageRestService supabaseStorageRestService) =>
+				IVectorService vector,
+				ISupabaseStorageRestService supabaseStorageRestService) =>
 			{
 				var userId = ctx.User.GetGuidUserId();
 				var resume = await resumeRepository.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);

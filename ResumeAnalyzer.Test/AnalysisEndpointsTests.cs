@@ -4,47 +4,45 @@ using Moq;
 using System.Net;
 using System.Net.Http.Json;
 using ResumeAnalyzer.Domain.Dto;
-using ResumeAnalyzer.Domain.Repositories;
-using ResumeAnalyzer.Services.Strategy;
+using ResumeAnalyzer.Services.Facade;
 using Xunit;
 
 namespace ResumeAnalyzer.Test;
 
-/// <summary>
-/// Minimal APIs using inline delegates (like AnalysisEndpoints) are best tested using WebApplicationFactory.
-/// Make sure `Microsoft.AspNetCore.Mvc.Testing` is installed in your Test project.
-/// </summary>
 public class AnalysisEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
 
-    public AnalysisEndpointsTests(WebApplicationFactory<Program> factory)
+    public AnalysisEndpointsTests(WebApplicationFactory<Program> factory) => _factory = factory;
+
+    private WebApplicationFactory<Program> WithMockedPipeline()
     {
-        _factory = factory;
+        var mock = new Mock<IAnalysisPipelineService>();
+        return _factory.WithWebHostBuilder(b =>
+            b.ConfigureServices(s => s.AddScoped(_ => mock.Object)));
     }
 
     [Fact]
     public async Task PostAts_EmptyJobDescription_ReturnsBadRequest()
     {
-        // Arrange
-        // We can override dependencies here using ConfigureTestServices if needed
-        var client = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Example of mocking a service injected into the endpoint
-                var mockAnalysis = new Mock<IAnalysisStrategy>();
-                services.AddSingleton(mockAnalysis.Object);
-            });
-        }).CreateClient();
+        var response = await WithMockedPipeline().CreateClient()
+            .PostAsJsonAsync("/api/analysis/ats", new AtsRequestDto(Guid.NewGuid(), ""));
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Unauthorized);
+    }
 
-        var request = new AtsRequestDto(Guid.NewGuid(), "");
+    [Fact]
+    public async Task PostGaps_EmptyJobDescription_ReturnsBadRequest()
+    {
+        var response = await WithMockedPipeline().CreateClient()
+            .PostAsJsonAsync("/api/analysis/gaps", new GapRequestDto(Guid.NewGuid(), ""));
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Unauthorized);
+    }
 
-        // Act
-        var response = await client.PostAsJsonAsync("/api/analysis/ats", request);
-
-        // Assert
-        // Expecting either 400 BadRequest (validation failure) or 401 Unauthorized (if auth is active)
+    [Fact]
+    public async Task PostTailor_EmptyJobDescription_ReturnsBadRequest()
+    {
+        var response = await WithMockedPipeline().CreateClient()
+            .PostAsJsonAsync("/api/analysis/tailor", new TailorRequestDto(Guid.NewGuid(), ""));
         Assert.True(response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Unauthorized);
     }
 }

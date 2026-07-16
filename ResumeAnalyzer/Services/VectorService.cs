@@ -4,12 +4,10 @@ using System.Text.Json;
 
 namespace ResumeAnalyzer.Services
 {
-	public class VectorService(IConfiguration config)
+	public class VectorService(IConfiguration config, IQdrantClientWrapper client) : IVectorService
 	{
 		private readonly ulong _vectorSize = ulong.TryParse(config["Qdrant:VectorSize"], out var size) ? size : 768;
-		private readonly QdrantClient _client = new(
-			config["Qdrant:Host"]!, https: true,
-			apiKey: config["Qdrant:ApiKey"]!);
+		private readonly IQdrantClientWrapper _client = client;
 
 		public async Task EnsureCollectionAsync(string name)
 		{

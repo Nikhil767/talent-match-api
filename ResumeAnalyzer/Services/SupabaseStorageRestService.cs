@@ -1,7 +1,7 @@
-﻿namespace ResumeAnalyzer.Services
+namespace ResumeAnalyzer.Services
 {
 	public class SupabaseStorageRestService(IConfiguration config, IHttpClientFactory httpFactory, 
-	ILogger<SupabaseStorageRestService> logger)
+	ILogger<SupabaseStorageRestService> logger) : ISupabaseStorageRestService
 	{
 		private readonly string _projectUrl = config["Supabase:Url"]!;
 		public async Task<string> UploadAsync(string bucket, string objectKey, Stream fileStream, string contentType, string bearerToken)

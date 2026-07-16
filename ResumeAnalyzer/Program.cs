@@ -203,7 +203,7 @@ builder.Services.AddSingleton<EmbeddingService>();
 builder.Services.AddSingleton<GroqService>();
 builder.Services.AddSingleton<GeminiService>();
 //builder.Services.AddSingleton<OpenAiMiniService>();
-builder.Services.AddSingleton<SupabaseStorageRestService>();
+builder.Services.AddSingleton<ISupabaseStorageRestService, SupabaseStorageRestService>();
 
 // Strategies
 builder.Services.AddSingleton<IEmbeddingStrategy, EmbeddingStrategy>();
@@ -212,7 +212,10 @@ builder.Services.AddSingleton<ITailorStrategy, TailorStrategy>();
 
 // Register Strategy & Pipeline Facades
 builder.Services.AddScoped<ResumePipelineService>();
-builder.Services.AddSingleton<VectorService>();
+builder.Services.AddScoped<IAnalysisPipelineService, AnalysisPipelineService>();
+builder.Services.AddScoped<IJobPipelineService, JobPipelineService>();
+builder.Services.AddSingleton<IQdrantClientWrapper, QdrantClientWrapper>();
+builder.Services.AddSingleton<IVectorService, VectorService>();
 builder.Services.AddSingleton<JobIngestionService>();
 builder.Services.AddHttpClient<SupabaseService>();
 builder.Services.AddSingleton<ISseBroker, SseBroker>();
@@ -250,7 +253,7 @@ using (var scope = app.Services.CreateScope())
 	{
 		var context = services.GetRequiredService<AppDbContext>();
 		await context.Database.EnsureCreatedAsync();
-		var vectoreService = services.GetRequiredService<VectorService>();
+		var vectoreService = services.GetRequiredService<IVectorService>();
 		await vectoreService.EnsureCollectionAsync(builder.Configuration["Qdrant:QdrantCollections:Resumes"]!);
 		await vectoreService.EnsureCollectionAsync(builder.Configuration["Qdrant:QdrantCollections:Jobs"]!);
 	}
