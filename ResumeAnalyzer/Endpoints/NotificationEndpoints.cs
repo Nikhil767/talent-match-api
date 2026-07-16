@@ -15,14 +15,13 @@ namespace ResumeAnalyzer.Endpoints
 			});
 
 			// 2. DELETE an active connection forcefully via API
-			adminGroup.MapDelete("/sse/disconnect/{userId:guid}", (Guid userId, ISseBroker broker) =>
+			adminGroup.MapDelete("/sse/connections/{userId:guid}", (Guid userId, ISseBroker broker) =>
 			{
 				return DisconnectSSE(userId, broker);
 			});
 
 
 			var group = app.MapGroup("/api/notifications").WithTags("Notifications").RequireAuthorization();
-
 			// POST /notifications/userId
 			group.MapGet("/{userId:guid}", async (Guid userId, ISseBroker broker, CancellationToken ct) =>
 			{
@@ -31,7 +30,7 @@ namespace ResumeAnalyzer.Endpoints
 
 			// CLIENT DISCONNECT ENDPOINT
 			// Clients hit this to manually drop their own real-time subscription stream
-			group.MapPost("/cancel/{userId:guid}", (Guid userId, ISseBroker broker) =>
+			group.MapDelete("/cancel/{userId:guid}", (Guid userId, ISseBroker broker) =>
 			{
 				return DisconnectSSE(userId, broker);
 			});

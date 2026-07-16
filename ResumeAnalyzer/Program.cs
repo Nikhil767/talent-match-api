@@ -285,7 +285,7 @@ if (app.Environment.IsDevelopment())
 
 // MAP LIVENESS ENDPOINT (/alive)
 // Returns instantly with HTTP 200 "Healthy" if the app isn't deadlocked.
-app.MapHealthChecks("/alive", new HealthCheckOptions
+app.MapHealthChecks("/api/alive", new HealthCheckOptions
 {
 	Predicate = check => check.Tags.Contains("live")
 });

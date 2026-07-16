@@ -225,8 +225,8 @@ docker run -p 8080:8080 --env-file .env talent-match-api
 | `GET`  | `/api/notifications/{userId}` | Get sse events for the resume upload process |
 | `DELETE`| `/api/notifications/cancel/{userId}` | Disconnect the sse connection manually if required |
 | `GET`  | `/api/admin/sse/connections` | Get All sse connection list |
-| `DELETE` | `/api/admin/sse/connections/{userId}` | Disconnect the sse connection manually if required |
-
+| `DELETE`| `/api/admin/sse/connections/{userId}` | Disconnect the sse connection manually if required |
+| `GET`  | `/api/alive` | To do health check for the .net app |
 ---
 
 ## 🤝 Contributing
