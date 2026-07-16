@@ -9,6 +9,7 @@
 ![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-DC244C?style=for-the-badge&logo=qdrant)
 ![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker)
 ![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render)
+![Upstash](https://img.shields.io/badge/Redis%20by-Upstash-00E9A5?style=for-the-badge&logo=upstash)
 
 ---
 
@@ -46,7 +47,7 @@
                                       ▼
                      ┌─────────────────────────────────┐
                      │  Embedding Service              │
-                     │ (Hugging Face API / local model)│
+                     │ (Hugging Face API/ Gemini model)│
                      │  → 768-dim vector               │
                      └──────────────┬──────────────────┘
                                     ▼
@@ -68,7 +69,7 @@
                      └──────────────┬──────────────────┘
                                     ▼
                          ┌───────────────────────┐
-                         │  JSON Response to User│
+                         │ JSON Response to User │
                          └───────────────────────┘
 ```
 
@@ -108,6 +109,7 @@ dotnet user-secrets set "AI:Groq:ApiKey" "your-groq-key"
 dotnet user-secrets set "AI:OpenAI:ApiKey" "your-openai-key"
 dotnet user-secrets set "HuggingFace:ApiKey" "your-hf-key"
 dotnet user-secrets set "JSearch:ApiKey" "your-jsearch-key"
+dotnet user-secrets set "Upstash:RedisUrl" "YOUR_HOST_HERE:6379,password=YOUR_PASSWORD_HERE,ssl=true,abortConnect=false"
 ```
 
 ### 3. `appsettings.json` Structure Reference
@@ -170,6 +172,9 @@ dotnet user-secrets set "JSearch:ApiKey" "your-jsearch-key"
   "Url": "https://jsearch.p.rapidapi.com/",
   "ApiKey": "your-jsearch-key",
   "Host": "jsearch.p.rapidapi.com"
+},
+"Upstash": {
+  "RedisUrl": "YOUR_HOST_HERE:6379,password=YOUR_PASSWORD_HERE,ssl=true,abortConnect=false"
 }
 ```
 ---
@@ -184,6 +189,7 @@ You can find the script here:
 Use `psql` to execute it:
 ```bash
 psql -U <username> -d <database> -f First_Schema.sql
+```
 ---
 
 ## 🐳 Docker Deployment

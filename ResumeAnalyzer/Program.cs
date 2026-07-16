@@ -6,12 +6,14 @@ using ResumeAnalyzer.Background;
 using ResumeAnalyzer.Domain;
 using ResumeAnalyzer.Domain.Repositories;
 using ResumeAnalyzer.Endpoints;
+using ResumeAnalyzer.Middleware;
 using ResumeAnalyzer.Services;
 using ResumeAnalyzer.Services.Facade;
 using ResumeAnalyzer.Services.Polly;
 using ResumeAnalyzer.Services.Providers;
 using ResumeAnalyzer.Services.Sse;
 using ResumeAnalyzer.Services.Strategy;
+using StackExchange.Redis;
 using System.Security.Cryptography;
 using System.Threading.RateLimiting;
 
@@ -198,6 +200,9 @@ builder.Services.AddSingleton<GroqService>();
 builder.Services.AddSingleton<GeminiService>();
 //builder.Services.AddSingleton<OpenAiMiniService>();
 builder.Services.AddSingleton<ISupabaseStorageRestService, SupabaseStorageRestService>();
+// upstash redis
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+ConnectionMultiplexer.Connect(builder.Configuration["Upstash:RedisUrl"]!));
 
 // Strategies
 builder.Services.AddSingleton<IEmbeddingStrategy, EmbeddingStrategy>();
@@ -266,6 +271,10 @@ app.UseCors();
 app.UseRateLimiter();
 // 5. Auth before authorization
 app.UseAuthentication();
+
+// 5.1 BLACKLIST MIDDLEWARE
+app.UseMiddleware<TokenBlacklistMiddleware>();
+
 // 6. Authorization
 app.UseAuthorization();
 if (app.Environment.IsDevelopment())

@@ -68,20 +68,5 @@ namespace ResumeAnalyzer.Services
 
 			return (true, json.GetProperty("access_token").GetString(), null);
 		}
-
-		//private readonly Supabase.Client _client = new(
-		//	config["Supabase:Url"]!,
-		//	config["Supabase:AnonKey"]!,
-		//	new SupabaseOptions { AutoRefreshToken = false }
-		//);
-
-		//public async Task<Session?> RegisterAsync(string email, string password)
-		//	=> await _client.Auth.SignUp(email, password);
-
-		//public async Task<Session?> LoginAsync(string email, string password)
-		//	=> await _client.Auth.SignIn(email, password);
-
-		//public async Task LogoutAsync()
-		//	=> await _client.Auth.SignOut();
 	}
 }
