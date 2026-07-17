@@ -224,27 +224,30 @@ docker run -p 8080:8080 --env-file .env talent-match-api
 
 ## 📡 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET`  | `/api/resume` | Retrieve All resumes list for current User |
-| `POST` | `/api/resume/upload` | Upload & validate a resume (PDF/DOCX/DOC/TXT), extract text, store in Supabase, generate embedding |
-| `GET`  | `/api/resume/{id}` | Retrieve parsed resume metadata |
-| `GET`  | `/api/resume/{id}/skills` | Retrieve parsed resume skills |
-| `POST` | `/api/resume/{id}/build` | Build Resume |
-| `POST` | `/api/resume/{id}/export` | Export Resume |
-| `DELETE` | `/api/resume/{id}` | Remove resume from storage, database, and vector index |
-| `POST` | `/api/analysis/ats` | Run semantic match between a resume and a job description, returns fit score + LLM summary |
-| `POST` | `/api/analysis/gaps` | Run semantic match between a resume and a job description, returns Missing gaps |
-| `POST` | `/api/analysis/tailor` | Run semantic match between a resume and a job description, returns resume bullets to a specific job description |
-| `POST` | `/api/jobs/ingest` | ingests (jobs from JSearch API & imports) a job-related payload into the system. |
-| `GET`  | `/api/jobs/search` | Search jobs from DB |
-| `POST` | `/api/jobs/match` | Matches job description with Existing jobs with its own embedding |
-| `GET`  | `/api/jobs/{id}` | Get job details by JobId |
-| `GET`  | `/api/notifications/{userId}` | Get sse events for the resume upload process |
+| Method  | Endpoint | Description |
+|---------|----------|-------------|
+| `POST`  | `/api/auth/register` | Register for the new User |
+| `POST`  | `/api/auth/login` | Regitered User can login |
+| `POST`  | `/api/auth/logout` | Regitered User can logout |
+| `GET`   | `/api/resume` | Retrieve All resumes list for current User |
+| `POST`  | `/api/resume/upload` | Upload & validate a resume (PDF/DOCX/DOC/TXT), extract text, store in Supabase, generate embedding |
+| `GET`   | `/api/resume/{id}` | Retrieve parsed resume metadata |
+| `GET`   | `/api/resume/{id}/skills` | Retrieve parsed resume skills |
+| `POST`  | `/api/resume/{id}/build` | Build Resume |
+| `POST`  | `/api/resume/{id}/export` | Export Resume |
+| `DELETE`| `/api/resume/{id}` | Remove resume from storage, database, and vector index |
+| `POST`  | `/api/analysis/ats` | Run semantic match between a resume and a job description, returns fit score + LLM summary |
+| `POST`  | `/api/analysis/gaps` | Run semantic match between a resume and a job description, returns Missing gaps |
+| `POST`  | `/api/analysis/tailor` | Run semantic match between a resume and a job description, returns resume bullets to a specific job description |
+| `POST`  | `/api/jobs/ingest` | ingests (jobs from JSearch API & imports) a job-related payload into the system. |
+| `GET`   | `/api/jobs/search` | Search jobs from DB |
+| `POST`  | `/api/jobs/match` | Matches job description with Existing jobs with its own embedding |
+| `GET`   | `/api/jobs/{id}` | Get job details by JobId |
+| `GET`   | `/api/notifications/{userId}` | Get sse events for the resume upload process |
 | `DELETE`| `/api/notifications/cancel/{userId}` | Disconnect the sse connection manually if required |
-| `GET`  | `/api/admin/sse/connections` | Get All sse connection list |
+| `GET`   | `/api/admin/sse/connections` | Get All sse connection list |
 | `DELETE`| `/api/admin/sse/connections/{userId}` | Disconnect the sse connection manually if required |
-| `GET`  | `/api/alive` | To do health check for the .net app |
+| `GET`   | `/api/alive` | To do health check for the .net app |
 ---
 
 ## 🤝 Contributing
