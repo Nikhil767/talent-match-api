@@ -211,6 +211,7 @@ builder.Services.AddSingleton<ITailorStrategy, TailorStrategy>();
 
 // Register Strategy & Pipeline Facades
 builder.Services.AddScoped<ResumePipelineService>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IAnalysisPipelineService, AnalysisPipelineService>();
 builder.Services.AddScoped<IJobPipelineService, JobPipelineService>();
 builder.Services.AddSingleton<IQdrantClientWrapper, QdrantClientWrapper>();

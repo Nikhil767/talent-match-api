@@ -4,6 +4,7 @@ using ResumeAnalyzer.Domain.Entities;
 using ResumeAnalyzer.Domain.Repositories;
 using ResumeAnalyzer.Middleware;
 using ResumeAnalyzer.Services;
+using ResumeAnalyzer.Services.Facade;
 using ResumeAnalyzer.Services.Helper;
 using System.Text.Json;
 
@@ -140,33 +141,31 @@ namespace ResumeAnalyzer.Endpoints
 			})
 			.WithSummary("Delete a resume (PDF + vector + metadata)");
 
-			//		// POST /resume/build
-			//		group.MapPost("/build", async (
-			//ResumeExportRequest req,
-			//IResumeExportService service) =>
-			//		{
-			//			var result = await service.ExportAsync(req);
-			//			return Results.File(
-			//				fileContents: result.FileBytes,
-			//				contentType: result.FileType == "pdf" ? "application/pdf" :
-			//							 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-			//				fileDownloadName: result.FileName
-			//			);
-			//		});
+			// POST /resume/build
+			group.MapPost("/build", async (
+			ResumeExportRequestDto req, IResumeService service) =>
+			{
+				var result = await service.ExportAsync(req);
+				return Results.File(
+					fileContents: result.FileBytes,
+					contentType: result.FileType == "pdf" ? "application/pdf" :
+								 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+					fileDownloadName: result.FileName
+				);
+			});
 
-			//		// POST /resume/export
-			//		group.MapPost("/export", async (
-			//ResumeExportRequest req,
-			//IResumeExportService service) =>
-			//		{
-			//			var result = await service.ExportAsync(req);
-			//			return Results.File(
-			//				fileContents: result.FileBytes,
-			//				contentType: result.FileType == "pdf" ? "application/pdf" :
-			//							 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-			//				fileDownloadName: result.FileName
-			//			);
-			//		});
+			// POST /resume/export
+			group.MapPost("/export", async (
+			ResumeExportRequestDto req, IResumeService service) =>
+			{
+				var result = await service.ExportAsync(req);
+				return Results.File(
+					fileContents: result.FileBytes,
+					contentType: result.FileType == "pdf" ? "application/pdf" :
+								 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+					fileDownloadName: result.FileName
+				);
+			});
 		}
 
 		#region Private Helper Methods
