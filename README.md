@@ -239,7 +239,7 @@ docker run -p 8080:8080 --env-file .env talent-match-api
 | `POST`  | `/api/analysis/ats` | Run semantic match between a resume and a job description, returns fit score + LLM summary |
 | `POST`  | `/api/analysis/gaps` | Run semantic match between a resume and a job description, returns Missing gaps |
 | `POST`  | `/api/analysis/tailor` | Run semantic match between a resume and a job description, returns resume bullets to a specific job description |
-| `POST`  | `/api/jobs/ingest` | ingests (jobs from JSearch API & imports) a job-related payload into the system. |
+| `POST`  | `/api/jobs/ingest` | ingests (jobs from JSearch API & imports) a job-related payload into the system. (It is required for job search) |
 | `GET`   | `/api/jobs/search` | Search jobs from DB |
 | `POST`  | `/api/jobs/match` | Matches job description with Existing jobs with its own embedding |
 | `GET`   | `/api/jobs/{id}` | Get job details by JobId |
